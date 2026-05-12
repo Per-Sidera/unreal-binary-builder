@@ -70,10 +70,27 @@
 		</Border>
 
 		<!-- Main tabs -->
-		<hc:TabControl IsAnimationEnabled="True" ShowCloseButton="False"
+		<hc:TabControl Style="{StaticResource TabControlInLine}"
+					   IsAnimationEnabled="True" ShowCloseButton="False"
 					   Background="Transparent"
 					   BorderBrush="{DynamicResource BorderBrush}"
 					   BorderThickness="0,1,0,0">
+			<hc:TabControl.Resources>
+				<Style TargetType="{x:Type hc:TabItem}" BasedOn="{StaticResource TabItemInLine}">
+					<Setter Property="Background" Value="Transparent"/>
+					<Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
+					<Setter Property="BorderBrush" Value="Transparent"/>
+					<Style.Triggers>
+						<Trigger Property="IsMouseOver" Value="True">
+							<Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}"/>
+						</Trigger>
+						<Trigger Property="IsSelected" Value="True">
+							<Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}"/>
+							<Setter Property="FontWeight" Value="SemiBold"/>
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+			</hc:TabControl.Resources>
 			<hc:TabItem Header="Engine" IsSelected="True">
 				<views:EngineTab DataContext="{Binding Engine}"/>
 			</hc:TabItem>

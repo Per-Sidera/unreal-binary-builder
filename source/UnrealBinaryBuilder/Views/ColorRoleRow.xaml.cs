@@ -21,12 +21,12 @@ public partial class ColorRoleRow : UserControl
 	private void OnPickerConfirmed(object sender, FunctionEventArgs<Color> e)
 	{
 		PushColor(e.Info);
-		SwatchToggle.IsChecked = false;
+		PickToggle.IsChecked = false;
 	}
 
 	private void OnPickerCanceled(object sender, EventArgs e)
 	{
-		SwatchToggle.IsChecked = false;
+		PickToggle.IsChecked = false;
 	}
 
 	private void PushColor(Color color)
