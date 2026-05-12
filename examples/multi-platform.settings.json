@@ -1,0 +1,77 @@
+// multi-platform.settings.json
+//
+// Full game-studio shipping build: Win64 + Linux + Android, editor + game +
+// server + client targets, Debug / Development / Test / Shipping configs,
+// PDBs kept for crash-dump diagnosis. The output zip is sizeable (40+ GB) —
+// this is the "build it once and ship it to every dev box, every console
+// runner, and every CI agent" preset.
+//
+// Pre-requisites on the host:
+//   * Linux:   UE clang cross-toolchain installed (Engine\Extras\ThirdPartyNotUE\SDKs).
+//   * Android: Android Studio + NDK / SDK matched to engine's AndroidWorkflow.
+{
+  "RunSetup": true,
+  "RunGenerateProjectFiles": true,
+  "RunBuildAutomationTool": true,
+  "ContinueToEngineBuild": true,
+
+  "WithWin64": true,
+  "WithWin32": false,
+  "WithMac": false,
+  "WithLinux": true,
+  "WithLinuxArm64": false,
+  "WithAndroid": true,
+  "WithIOS": false,
+  "WithTVOS": false,
+  "WithHoloLens": false,
+  "WithSwitch": false,
+  "WithPS4": false,
+  "WithPS5": false,
+  "WithXboxOne": false,
+  "WithXSX": false,
+  "HostPlatformOnly": false,
+  "HostPlatformEditorOnly": false,
+
+  "WithDdc": true,
+  "HostPlatformDdcOnly": true,
+  "SignExecutables": false,
+  "EnableSymStore": false,
+  "WithFullDebugInfo": false,
+  "CleanBuild": false,
+  "WithServer": true,
+  "WithClient": true,
+  "CompileDatasmithPlugins": false,
+
+  "GameConfigurations": "Debug;Development;Test;Shipping",
+
+  "GitDependencyAll": false,
+  "GitDependencyPlatforms": [
+    { "Name": "Win64",    "Included": true  },
+    { "Name": "Linux",    "Included": true  },
+    { "Name": "Android",  "Included": true  },
+    { "Name": "Mac",      "Included": false },
+    { "Name": "IOS",      "Included": false },
+    { "Name": "TVOS",     "Included": false },
+    { "Name": "HoloLens", "Included": false }
+  ],
+  "GitDependencyThreads": 12,
+  "GitDependencyEnableCache": true,
+
+  "WriteRegisterEngineScript": true,
+  "RegisterEngineName": "",
+
+  // Zip with PDBs kept — needed for symbolicating crash dumps from devs/QA.
+  "ZipEngineBuild": true,
+  "ZipEnginePath": "C:\\Builds\\UnrealEngine_AllPlatforms.zip",
+  "ZipIncludePdb": true,
+  "ZipIncludeDebug": false,
+  "ZipIncludeDocumentation": false,
+  "ZipIncludeExtras": true,
+  "ZipIncludeSource": false,
+  "ZipIncludeFeaturePacks": false,
+  "ZipIncludeSamples": false,
+  "ZipIncludeTemplates": true,
+  "ZipFastCompression": false,
+
+  "ShutdownPc": false
+}

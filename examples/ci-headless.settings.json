@@ -1,0 +1,87 @@
+// ci-headless.settings.json
+//
+// Non-interactive automation / CI use. Same shape as the artist preset but
+// every confirmation, first-time warning, update check, and shutdown hook is
+// silenced so the pipeline runs unattended end-to-end. Typically combined
+// with CLI overrides for the volatile bits:
+//
+//   ubb build --engine D:\agent\src\UnrealEngine `
+//             --settings .\examples\ci-headless.settings.json `
+//             --zip-out  $env:BUILD_ARTIFACTS\engine.zip `
+//             --engine-name "$env:BRANCH_NAME-$env:BUILD_NUMBER" `
+//             --verbose
+{
+  "RunSetup": true,
+  "RunGenerateProjectFiles": true,
+  "RunBuildAutomationTool": true,
+  "ContinueToEngineBuild": true,
+
+  "WithWin64": true,
+  "WithWin32": false,
+  "WithMac": false,
+  "WithLinux": false,
+  "WithLinuxArm64": false,
+  "WithAndroid": false,
+  "WithIOS": false,
+  "WithTVOS": false,
+  "WithHoloLens": false,
+  "WithSwitch": false,
+  "WithPS4": false,
+  "WithPS5": false,
+  "WithXboxOne": false,
+  "WithXSX": false,
+  "HostPlatformOnly": false,
+  "HostPlatformEditorOnly": false,
+
+  "WithDdc": true,
+  "HostPlatformDdcOnly": true,
+  "SignExecutables": false,
+  "EnableSymStore": false,
+  "WithFullDebugInfo": false,
+  "CleanBuild": false,
+  "WithServer": false,
+  "WithClient": false,
+  "CompileDatasmithPlugins": false,
+
+  "GameConfigurations": "Development;Shipping",
+
+  "GitDependencyAll": false,
+  "GitDependencyPlatforms": [
+    { "Name": "Win64",    "Included": true  },
+    { "Name": "Linux",    "Included": false },
+    { "Name": "Android",  "Included": false },
+    { "Name": "Mac",      "Included": false },
+    { "Name": "IOS",      "Included": false },
+    { "Name": "TVOS",     "Included": false },
+    { "Name": "HoloLens", "Included": false }
+  ],
+  "GitDependencyThreads": 12,
+  "GitDependencyMaxRetries": 8,
+  "GitDependencyEnableCache": true,
+
+  // All UI noise silenced — these only affect the GUI; the CLI ignores them.
+  // Setting them anyway keeps the file portable between GUI/CLI runs on an
+  // agent that has the GUI installed.
+  "CheckForUpdatesAtStartup": false,
+  "ShowEngineBuildConfirmation": false,
+  "ShowDdcWarning": false,
+  "ShowConsoleDeprecatedMessage": false,
+
+  "WriteRegisterEngineScript": true,
+  "RegisterEngineName": "",
+
+  "ZipEngineBuild": true,
+  "ZipEnginePath": "C:\\Builds\\UnrealEngine_CI.zip",
+  "ZipIncludePdb": false,
+  "ZipIncludeDebug": false,
+  "ZipIncludeDocumentation": false,
+  "ZipIncludeExtras": true,
+  "ZipIncludeSource": false,
+  "ZipIncludeFeaturePacks": false,
+  "ZipIncludeSamples": false,
+  "ZipIncludeTemplates": true,
+  "ZipFastCompression": false,
+
+  "ShutdownPc": false,
+  "ShutdownIfBuildSuccessOnly": false
+}

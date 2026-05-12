@@ -1,0 +1,66 @@
+// dev-build.settings.json
+//
+// Personal / team engine dev box. You build the engine from source on your own
+// machine and want a fully functional install with editor + game + server +
+// client targets, plus PDBs you can attach a debugger to. No zip — you point
+// .uproject files directly at this engine's path.
+{
+  "RunSetup": true,
+  "RunGenerateProjectFiles": true,
+  "RunBuildAutomationTool": true,
+  "ContinueToEngineBuild": true,
+
+  // Host-only (Win64). Add platforms below if you actually target them.
+  "WithWin64": true,
+  "WithWin32": false,
+  "WithMac": false,
+  "WithLinux": false,
+  "WithLinuxArm64": false,
+  "WithAndroid": false,
+  "WithIOS": false,
+  "WithTVOS": false,
+  "WithHoloLens": false,
+  "WithSwitch": false,
+  "WithPS4": false,
+  "WithPS5": false,
+  "WithXboxOne": false,
+  "WithXSX": false,
+  "HostPlatformOnly": true,
+  "HostPlatformEditorOnly": false,
+
+  "WithDdc": true,
+  "HostPlatformDdcOnly": true,
+  "SignExecutables": false,
+  "EnableSymStore": false,
+  "WithFullDebugInfo": false,
+  "CleanBuild": false,
+  "WithServer": true,
+  "WithClient": true,
+  "CompileDatasmithPlugins": false,
+
+  // Build Debug + Development + Shipping so you can drop into any config.
+  "GameConfigurations": "Debug;Development;Shipping",
+
+  "GitDependencyAll": false,
+  "GitDependencyPlatforms": [
+    { "Name": "Win64",    "Included": true  },
+    { "Name": "Linux",    "Included": false },
+    { "Name": "Android",  "Included": false },
+    { "Name": "Mac",      "Included": false },
+    { "Name": "IOS",      "Included": false },
+    { "Name": "TVOS",     "Included": false },
+    { "Name": "HoloLens", "Included": false }
+  ],
+  "GitDependencyThreads": 8,
+  "GitDependencyEnableCache": true,
+
+  // Register the engine on this machine so .uproject Switch Version sees it.
+  // Empty name => auto "UnrealEngine_<Major>_<Minor>_<Patch>".
+  "WriteRegisterEngineScript": true,
+  "RegisterEngineName": "",
+
+  // No zip — it's a local install.
+  "ZipEngineBuild": false,
+
+  "ShutdownPc": false
+}

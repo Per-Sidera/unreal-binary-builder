@@ -1,0 +1,236 @@
+// ============================================================================
+// reference.settings.json — every option Unreal Binary Builder understands,
+// with the shipped defaults and inline comments.
+//
+// Use this file as a starting point: copy it, rename it, edit values, then
+// either:
+//   * GUI:  click "Import Preset…" in the top bar.
+//   * CLI:  ubb build --engine C:\UnrealEngine --settings reference.settings.json
+//
+// JSON comments (// ...) and trailing commas are tolerated — both the GUI and
+// the CLI run with ReadCommentHandling=Skip + AllowTrailingCommas=true. Strip
+// them out if you hand the file to a tool that does pure RFC 8259.
+// ============================================================================
+{
+  // ---- App ----------------------------------------------------------------
+  // UI theme. Currently only "Dark" is wired up.
+  "Theme": "Dark",
+
+  // On launch, hit the appcast URL and surface available updates in the toolbar.
+  // Set false if you ship UBB internally.
+  "CheckForUpdatesAtStartup": true,
+
+  // Show the "are you sure?" dialog before kicking off a multi-hour engine build.
+  "ShowEngineBuildConfirmation": true,
+
+  // First-time warning that disabling DDC will make the editor unusably slow
+  // until a fresh DDC is generated. Set false to silence after you've read it.
+  "ShowDdcWarning": true,
+
+  // First-time warning that the legacy Console SDK paths are deprecated in
+  // modern UE — informational.
+  "ShowConsoleDeprecatedMessage": true,
+
+
+  // ---- Paths / inputs -----------------------------------------------------
+  // Absolute path to the Unreal Engine source root (the folder containing
+  // Setup.bat + GenerateProjectFiles.bat). Required for the GUI build button;
+  // the CLI takes --engine <path> and overrides this.
+  "EngineRootPath": "C:\\UnrealEngine",
+
+  // Optional path to a custom BuildGraph .xml. Empty = use the engine's stock
+  // Engine/Build/InstalledEngineBuild.xml.
+  "CustomBuildXmlFile": "",
+
+  // Semicolon-separated configurations passed through to BuildGraph.
+  // Stock values: "Development", "Shipping", "Debug", "Test".
+  // Stack them: "Development;Shipping" builds both.
+  "GameConfigurations": "Development;Shipping",
+
+  // Extra raw arguments appended to the AutomationTool BuildGraph call.
+  // For power users — see Engine/Build/InstalledEngineBuild.xml for option
+  // node names. Format: "-Set:OptionName=true -Set:OtherOption=false".
+  "CustomBuildOptions": "",
+
+  // If non-empty, replaces the Epic analytics provider ID. Defaults to empty
+  // (no analytics from the engine telemetry hooks).
+  "AnalyticsOverride": "",
+
+
+  // ---- Setup.bat / git dependency download --------------------------------
+  // When true, Setup.bat downloads dependencies for ALL platforms. When false,
+  // only platforms with "Included": true in GitDependencyPlatforms below are
+  // fetched. For artist builds you almost always want false + Win64 only.
+  "GitDependencyAll": false,
+
+  // Per-platform inclusion when GitDependencyAll = false.
+  "GitDependencyPlatforms": [
+    { "Name": "Win64",    "Included": true  },
+    { "Name": "Linux",    "Included": false },
+    { "Name": "Android",  "Included": false },
+    { "Name": "Mac",      "Included": false },
+    { "Name": "IOS",      "Included": false },
+    { "Name": "TVOS",     "Included": false },
+    { "Name": "HoloLens", "Included": false }
+  ],
+
+  // Parallel download threads for git dependency fetch. 4–16 is sensible.
+  "GitDependencyThreads": 8,
+
+  // Per-blob retry budget before Setup.bat fails. Each retry has its own
+  // exponential backoff.
+  "GitDependencyMaxRetries": 4,
+
+  // HTTP/HTTPS proxy URL ("http://user:pass@host:port") for git dependency
+  // fetch. Empty = no proxy.
+  "GitDependencyProxy": "",
+
+  // Local on-disk cache of fetched blobs. Avoids re-downloading ~30 GB on
+  // subsequent runs / branches.
+  "GitDependencyEnableCache": true,
+
+  // Cache root. Empty falls back to <Documents>\UnrealBinaryBuilder\GitCache.
+  "GitDependencyCachePath": "",
+
+  // Max cache size = sum(blob sizes) * multiplier. 2.0 = up to 2× the working
+  // set, prevents the cache from growing unbounded.
+  "GitDependencyCacheMultiplier": 2.0,
+
+  // Days a cache entry stays warm before it's eligible for eviction.
+  "GitDependencyCacheDays": 7,
+
+
+  // ---- Compile pipeline toggles -------------------------------------------
+  // Whether to run each stage. Disable to resume after a stage that already
+  // succeeded — for example, set RunSetup=false + RunGenerateProjectFiles=false
+  // when retrying just the engine compile after fixing InstalledEngineBuild.xml.
+  "RunSetup": true,
+  "RunGenerateProjectFiles": true,
+  "RunBuildAutomationTool": true,
+  "ContinueToEngineBuild": true,
+
+
+  // ---- Target platforms ---------------------------------------------------
+  // Each enabled platform adds 20–60 min to the build. Disable everything you
+  // don't need. Win64 is the only one supported on a Windows host machine
+  // without extra SDKs / cross-compile toolchains.
+  "WithWin64":     true,
+  "WithWin32":     false,  // UE5 dropped Win32 — leave off.
+  "WithMac":       false,  // Needs an Apple host, won't compile from Windows.
+  "WithLinux":     false,  // Needs the UE clang cross-toolchain in PATH.
+  "WithLinuxArm64":false,
+  "WithAndroid":   false,  // Needs NDK / Android Studio configured.
+  "WithIOS":       false,
+  "WithTVOS":      false,
+  "WithHoloLens":  false,  // Removed in UE 5.3+.
+  "WithSwitch":    false,  // Console SDKs require a licensee NDA / source.
+  "WithPS4":       false,
+  "WithPS5":       false,
+  "WithXboxOne":   false,
+  "WithXSX":       false,
+
+  // Compile only the host platform (Win64 on Windows). Overrides per-platform
+  // toggles above when true. Faster and what most people want.
+  "HostPlatformOnly": false,
+
+  // Compile only the host platform AND only the editor (skip the runtime
+  // targets like UnrealGame / UnrealServer / UnrealClient). Fastest possible
+  // build but you won't be able to package projects from it.
+  "HostPlatformEditorOnly": false,
+
+
+  // ---- Compile options ----------------------------------------------------
+  // Generate a Derived Data Cache. Required if you want artists to open the
+  // editor without a multi-minute first-run shader / asset compile.
+  "WithDdc": true,
+
+  // Only generate DDC for the host platform. Saves disk space + time vs.
+  // generating DDC for every WithX platform.
+  "HostPlatformDdcOnly": true,
+
+  // Code-sign the produced .exes. Only useful if you've configured a signtool
+  // identity inside the engine build environment.
+  "SignExecutables": false,
+
+  // Push PDBs to a symbol store (set via SymStorePath env var). Useful for CI
+  // with a team-wide symbol server.
+  "EnableSymStore": false,
+
+  // Build with full debug info (vs. PublicSymbols only). Bloats output by
+  // several GB. Leave false unless you'll be debugging the engine itself.
+  "WithFullDebugInfo": false,
+
+  // Wipe Intermediate/ + Build/ before running. Forces a from-scratch compile;
+  // adds ~30 min. Use when you suspect cache poisoning.
+  "CleanBuild": false,
+
+  // Include the UnrealServer target (headless dedicated server). Adds ~20 min
+  // per platform.
+  "WithServer": false,
+
+  // Include the UnrealClient target (client-only, no editor). Mostly for
+  // multiplayer game shipping.
+  "WithClient": false,
+
+  // Compile the Datasmith importer plugins (USD, Solidworks, Rhino, CAD, etc).
+  // BIG warning: enabling this causes UBT to regenerate every
+  // UnrealEditor.modules digest mid-build, which can trigger a
+  // "Digest mismatch" failure at the "Make Installed Build" step. Leave OFF
+  // unless your team actually uses Datasmith. (This was the cause of every
+  // failed build we hit on UE 5.7.4.)
+  "CompileDatasmithPlugins": false,
+
+
+  // ---- Shutdown after build -----------------------------------------------
+  // Issues `shutdown /s /t 30` once the pipeline returns. Useful for overnight
+  // builds. ShutdownIfBuildSuccessOnly gates it on a clean exit code.
+  "ShutdownPc": false,
+  "ShutdownIfBuildSuccessOnly": false,
+
+
+  // ---- Engine registration script -----------------------------------------
+  // After a successful engine compile, UBB writes Register_Engine.bat into
+  // LocalBuilds\Engine\Windows\. Artists run it after extracting the zip to
+  // register the engine under HKCU\Software\Epic Games\Unreal Engine\Builds
+  // and to associate .uproject files via UnrealVersionSelector.exe /register.
+  // No admin rights required.
+  "WriteRegisterEngineScript": true,
+
+  // Friendly name written to the Builds registry key. Becomes the value of
+  // "EngineAssociation" in .uproject files. Empty = auto-derived to
+  // "UnrealEngine_<Major>_<Minor>_<Patch>". Filesystem-unsafe characters are
+  // sanitized to underscores when the .bat is generated.
+  "RegisterEngineName": "Unreal-5-7-4-Custom",
+
+
+  // ---- Zip output ---------------------------------------------------------
+  // When true, after the engine build succeeds, the builder zips
+  // LocalBuilds\Engine\Windows\ to ZipEnginePath.
+  "ZipEngineBuild": false,
+
+  // Absolute path of the output zip. Parent folder is created if missing.
+  "ZipEnginePath": "C:\\Builds\\UnrealEngine.zip",
+
+  // Filter toggles — turn OFF anything you don't want shipped to artists, in
+  // order of payoff:
+  //   IncludePdb=false:           saves ~10 GB (symbols).
+  //   IncludeSource=false:        saves ~4  GB (C++ source).
+  //   IncludeFeaturePacks=false:  saves ~1  GB (engine demo content).
+  //   IncludeSamples/Templates:   each saves a few hundred MB.
+  //   IncludeDebug:               .debug files, rare.
+  //   IncludeDocumentation:       inline API docs HTML, ~few hundred MB.
+  //   IncludeExtras:              redistributables (DX, VC), keep if artists
+  //                               might be on fresh Windows installs.
+  "ZipIncludePdb":           false,
+  "ZipIncludeDebug":         false,
+  "ZipIncludeDocumentation": false,
+  "ZipIncludeExtras":        true,
+  "ZipIncludeSource":        false,
+  "ZipIncludeFeaturePacks":  false,
+  "ZipIncludeSamples":       false,
+  "ZipIncludeTemplates":     true,
+
+  // Fast = CompressionLevel.Fastest (~2× faster zip, ~30% larger archive).
+  // False = SmallestSize (slower, ~10–15 GB smaller for a stock engine).
+  "ZipFastCompression": false
+}

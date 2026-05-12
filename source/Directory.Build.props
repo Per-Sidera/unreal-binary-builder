@@ -1,0 +1,18 @@
+<Project>
+  <!--
+    Shared MSBuild properties for every project under source/. Bumping the
+    version, author, or copyright here updates the GUI, CLI, Core library, and
+    the updater in one place. The About dialog reads Version off the running
+    assembly so this single Version property drives the displayed version too.
+  -->
+  <PropertyGroup>
+    <Version>4.0.0</Version>
+    <Authors>Logan Dye and contributors</Authors>
+    <Company>Per-Sidera</Company>
+    <Product>Unreal Binary Builder</Product>
+    <Copyright>Copyright (c) 2026 Logan Dye. Original work Copyright (c) 2021 Satheesh. MIT.</Copyright>
+    <RepositoryUrl>https://github.com/Per-Sidera/unreal-binary-builder</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/Per-Sidera/unreal-binary-builder</PackageProjectUrl>
+  </PropertyGroup>
+</Project>

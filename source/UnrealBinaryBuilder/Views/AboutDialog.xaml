@@ -1,0 +1,61 @@
+<hc:GlowWindow x:Class="UnrealBinaryBuilder.Views.AboutDialog"
+			   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			   xmlns:hc="https://handyorg.github.io/handycontrol"
+			   xmlns:helpers="clr-namespace:UnrealBinaryBuilder.Helpers"
+			   mc:Ignorable="d"
+			   Title="About"
+			   Background="{DynamicResource RegionBrush}"
+			   ActiveGlowColor="{DynamicResource PrimaryColor}"
+			   InactiveGlowColor="{DynamicResource SecondaryBorderColor}"
+			   Width="520" Height="420"
+			   WindowStartupLocation="CenterOwner">
+	<Grid Margin="20">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+		<TextBlock Grid.Row="0" Text="Unreal Binary Builder" FontSize="22" FontWeight="SemiBold"/>
+		<TextBlock Grid.Row="1" Margin="0,4,0,16">
+			<Run Text="Version "/>
+			<Run Text="{x:Static helpers:AppInfo.Version}"/>
+		</TextBlock>
+		<ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+			<StackPanel>
+				<TextBlock TextWrapping="Wrap"
+						   Text="Unreal Binary Builder creates Installed Builds of Unreal Engine from source, and packages plugins via RunUAT BuildPlugin."/>
+
+				<TextBlock Margin="0,12,0,0">
+					<Run Text="Maintained by "/>
+					<Run Text="Logan Dye" FontWeight="SemiBold"/>
+				</TextBlock>
+				<TextBlock>
+					<Hyperlink NavigateUri="https://github.com/Per-Sidera/unreal-binary-builder" RequestNavigate="OnNavigate">
+						github.com/Per-Sidera/unreal-binary-builder
+					</Hyperlink>
+				</TextBlock>
+				<TextBlock Margin="0,2,0,0">
+					<Run Text="Licensed under MIT — "/>
+					<Hyperlink NavigateUri="https://github.com/Per-Sidera/unreal-binary-builder/blob/main/LICENSE.md" RequestNavigate="OnNavigate">
+						LICENSE
+					</Hyperlink>
+				</TextBlock>
+				<TextBlock Margin="0,4,0,0" Opacity="0.65" FontSize="11" TextWrapping="Wrap"
+						   Text="Originally created by Satheesh (ryanjon2040). 4.x is a from-scratch modernization."/>
+
+				<TextBlock Margin="0,16,0,0" FontWeight="SemiBold" Text="Open source dependencies"/>
+				<TextBlock Margin="0,2,0,0" Text="• HandyControl"/>
+				<TextBlock Text="• AvalonEdit"/>
+				<TextBlock Text="• LibGit2Sharp"/>
+				<TextBlock Text="• NetSparkleUpdater"/>
+				<TextBlock Text="• CommunityToolkit.Mvvm"/>
+				<TextBlock Text="• System.CommandLine"/>
+			</StackPanel>
+		</ScrollViewer>
+		<Button Grid.Row="3" Content="Close" Width="100" HorizontalAlignment="Right" Click="OnClose"/>
+	</Grid>
+</hc:GlowWindow>

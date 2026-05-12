@@ -1,0 +1,59 @@
+// quick-smoke.settings.json
+//
+// Fastest possible build — for verifying "does the engine even compile?" on
+// fresh source or after a major engine edit. Host-platform editor target
+// only, DDC skipped, no zip, no registration script. Expect roughly half the
+// time of a stock build. Not suitable for handoff; the resulting install is
+// editor-only and missing the runtime targets that ship a packaged game.
+{
+  "RunSetup": true,
+  "RunGenerateProjectFiles": true,
+  "RunBuildAutomationTool": true,
+  "ContinueToEngineBuild": true,
+
+  "WithWin64": true,
+  "WithWin32": false,
+  "WithMac": false,
+  "WithLinux": false,
+  "WithLinuxArm64": false,
+  "WithAndroid": false,
+  "WithIOS": false,
+  "WithTVOS": false,
+  "WithHoloLens": false,
+  "WithSwitch": false,
+  "WithPS4": false,
+  "WithPS5": false,
+  "WithXboxOne": false,
+  "WithXSX": false,
+  "HostPlatformOnly": true,
+  "HostPlatformEditorOnly": true,
+
+  // No DDC — the editor will warm it on first launch. Massive time saver.
+  "WithDdc": false,
+  "HostPlatformDdcOnly": true,
+
+  "SignExecutables": false,
+  "EnableSymStore": false,
+  "WithFullDebugInfo": false,
+  "CleanBuild": false,
+  "WithServer": false,
+  "WithClient": false,
+  "CompileDatasmithPlugins": false,
+
+  "GameConfigurations": "Development",
+
+  "GitDependencyAll": false,
+  "GitDependencyPlatforms": [
+    { "Name": "Win64", "Included": true }
+  ],
+  "GitDependencyThreads": 8,
+  "GitDependencyEnableCache": true,
+
+  // Skip all interactive dialogs so the smoke test runs unattended.
+  "ShowEngineBuildConfirmation": false,
+  "ShowDdcWarning": false,
+
+  "WriteRegisterEngineScript": false,
+  "ZipEngineBuild": false,
+  "ShutdownPc": false
+}

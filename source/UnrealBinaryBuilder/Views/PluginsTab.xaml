@@ -1,0 +1,164 @@
+<UserControl x:Class="UnrealBinaryBuilder.Views.PluginsTab"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:hc="https://handyorg.github.io/handycontrol"
+			 xmlns:vm="clr-namespace:UnrealBinaryBuilder.ViewModels"
+			 xmlns:views="clr-namespace:UnrealBinaryBuilder.Views"
+			 mc:Ignorable="d"
+			 d:DataContext="{d:DesignInstance Type=vm:PluginsTabViewModel}"
+			 d:DesignWidth="1280" d:DesignHeight="640">
+	<UserControl.Resources>
+		<Style x:Key="SectionHelp" TargetType="TextBlock">
+			<Setter Property="Opacity" Value="0.6"/>
+			<Setter Property="FontSize" Value="11"/>
+			<Setter Property="Margin" Value="0,0,0,10"/>
+			<Setter Property="TextWrapping" Value="Wrap"/>
+		</Style>
+	</UserControl.Resources>
+	<Grid Margin="16">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="440"/>
+			<ColumnDefinition Width="*"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+
+		<!-- Form -->
+		<ScrollViewer Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" VerticalScrollBarVisibility="Auto" Margin="0,0,12,0">
+			<StackPanel>
+
+				<GroupBox Header="Target engine">
+					<StackPanel Margin="6">
+						<TextBlock Style="{StaticResource SectionHelp}"
+								   Text="Engines registered with the Epic Launcher and custom installs from the registry. Pick the engine version you want to build the plugin against."/>
+						<ComboBox ItemsSource="{Binding InstalledEngines}" SelectedItem="{Binding SelectedEngine}"
+								  DisplayMemberPath="EngineName"
+								  hc:InfoElement.Placeholder="Pick an installed engine"
+								  ToolTip="Read from HKLM\Software\EpicGames\Unreal Engine and HKCU\Software\Epic Games\Unreal Engine\Builds. Engines without a RunUAT.bat are filtered out."/>
+					</StackPanel>
+				</GroupBox>
+
+				<GroupBox Header="Plugin" Margin="0,12,0,0">
+					<StackPanel Margin="6">
+						<TextBlock Style="{StaticResource SectionHelp}"
+								   Text="The .uplugin file you want to package, and where the built plugin should land."/>
+						<Grid Margin="0,0,0,8">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="Auto"/>
+							</Grid.ColumnDefinitions>
+							<TextBox Grid.Column="0" Text="{Binding PluginPath, UpdateSourceTrigger=PropertyChanged}"
+									 hc:InfoElement.Placeholder=".uplugin file"
+									 Style="{StaticResource TextBoxExtend}" Margin="0,0,8,0"
+									 ToolTip="Path to the .uplugin manifest. The platforms list below is auto-populated from the manifest's allow-list when you pick a file."/>
+							<Button Grid.Column="1" Content="Browse" Command="{Binding BrowsePluginPathCommand}" Width="100"/>
+						</Grid>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="Auto"/>
+							</Grid.ColumnDefinitions>
+							<TextBox Grid.Column="0" Text="{Binding DestinationPath, UpdateSourceTrigger=PropertyChanged}"
+									 hc:InfoElement.Placeholder="Destination directory"
+									 Style="{StaticResource TextBoxExtend}" Margin="0,0,8,0"
+									 ToolTip="Where the built plugin (.uplugin + Binaries/ + Resources/ + Content/) is written. Must exist before queuing."/>
+							<Button Grid.Column="1" Content="Browse" Command="{Binding BrowseDestinationPathCommand}" Width="100"/>
+						</Grid>
+					</StackPanel>
+				</GroupBox>
+
+				<GroupBox Header="Target platforms" Margin="0,12,0,0">
+					<StackPanel Margin="6">
+						<TextBlock Style="{StaticResource SectionHelp}"
+								   Text="By default RunUAT BuildPlugin uses the .uplugin's PlatformAllowList. Override here if you want to compile a subset (faster) or a different set."/>
+						<CheckBox Content="Override platforms from .uplugin" IsChecked="{Binding OverrideTargetPlatforms}" Margin="0,2"
+								  ToolTip="When on, only the platforms ticked below are compiled. When off, RunUAT decides based on the .uplugin manifest."/>
+						<ItemsControl ItemsSource="{Binding PlatformChoices}" IsEnabled="{Binding OverrideTargetPlatforms}" Margin="0,8,0,0">
+							<ItemsControl.ItemsPanel>
+								<ItemsPanelTemplate>
+									<WrapPanel/>
+								</ItemsPanelTemplate>
+							</ItemsControl.ItemsPanel>
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<CheckBox Content="{Binding Name}" IsChecked="{Binding IsSelected}" Margin="0,4,16,4"
+											  IsEnabled="{Binding IsLocked, Converter={StaticResource InverseBool}}"
+											  ToolTip="Tick to compile this platform. Win64 is locked on — every plugin needs at least Win64."/>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</StackPanel>
+				</GroupBox>
+
+				<GroupBox Header="Zip after build" Margin="0,12,0,0">
+					<StackPanel Margin="6">
+						<TextBlock Style="{StaticResource SectionHelp}"
+								   Text="Optionally zip the built plugin for distribution. Filename is &lt;PluginName&gt;_&lt;EngineVersion&gt;.zip."/>
+						<CheckBox Content="Zip plugin after a successful build" IsChecked="{Binding ZipAfterBuild}" Margin="0,2"
+								  ToolTip="Runs only if the plugin compile succeeds. Failures skip the zip stage."/>
+						<Grid Margin="0,8,0,0" IsEnabled="{Binding ZipAfterBuild}">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="*"/>
+								<ColumnDefinition Width="Auto"/>
+							</Grid.ColumnDefinitions>
+							<TextBox Grid.Column="0" Text="{Binding ZipPath, UpdateSourceTrigger=PropertyChanged}"
+									 hc:InfoElement.Placeholder="Zip output directory"
+									 Style="{StaticResource TextBoxExtend}" Margin="0,0,8,0"
+									 ToolTip="Folder to drop the zip into. Must be writable. Falls back to the destination directory if not."/>
+							<Button Grid.Column="1" Content="Browse" Command="{Binding BrowseZipPathCommand}" Width="100"/>
+						</Grid>
+						<CheckBox Content="Marketplace zip (excludes Binaries / Intermediate)"
+								  IsChecked="{Binding ZipForMarketplace}" Margin="0,8,0,0"
+								  IsEnabled="{Binding ZipAfterBuild}"
+								  ToolTip="Strips Binaries/ and Intermediate/ from the zip — what Epic requires for Marketplace submissions. Leave off for internal distribution so recipients don't have to recompile the plugin themselves."/>
+					</StackPanel>
+				</GroupBox>
+
+				<Button Content="Add to queue" Command="{Binding EnqueuePluginCommand}"
+						Style="{StaticResource ButtonDashedPrimary}" Margin="0,16,0,0" Padding="0,8"
+						ToolTip="Validate the form and add a plugin card to the queue on the right. You can queue multiple plugins (against different engines) and build them sequentially."/>
+			</StackPanel>
+		</ScrollViewer>
+
+		<!-- Queue -->
+		<GroupBox Grid.Column="1" Grid.Row="0" Header="Build queue">
+			<DockPanel>
+				<TextBlock DockPanel.Dock="Top" Style="{StaticResource SectionHelp}" Margin="6,6,6,6"
+						   Text="Queued plugin builds. Each card shows live state: Pending → Building → Succeeded / Failed. Clicking Build queue runs them one after another."/>
+				<ScrollViewer VerticalScrollBarVisibility="Auto">
+					<ItemsControl ItemsSource="{Binding Queue}" Margin="6">
+						<ItemsControl.ItemsPanel>
+							<ItemsPanelTemplate>
+								<WrapPanel/>
+							</ItemsPanelTemplate>
+						</ItemsControl.ItemsPanel>
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<views:PluginCard Margin="6"/>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+			</DockPanel>
+		</GroupBox>
+
+		<!-- Build button -->
+		<Border Grid.Column="1" Grid.Row="1" Background="{DynamicResource RegionBrush}" CornerRadius="6"
+				Padding="12" Margin="0,12,0,0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="Auto"/>
+				</Grid.ColumnDefinitions>
+				<TextBlock VerticalAlignment="Center" Text="{Binding Queue.Count, StringFormat=Plugins queued: {0}}" Opacity="0.7"/>
+				<Button Grid.Column="1" Content="Build queue" Command="{Binding BuildQueueCommand}"
+						Style="{StaticResource ButtonPrimary}" Width="180" IsEnabled="{Binding Status.IsBusy, Converter={StaticResource InverseBool}}"
+						ToolTip="Build every Pending card in order. The Output tab streams the live log; cards update when each build finishes."/>
+			</Grid>
+		</Border>
+	</Grid>
+</UserControl>
