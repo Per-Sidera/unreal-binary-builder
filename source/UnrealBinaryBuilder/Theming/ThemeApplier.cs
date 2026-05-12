@@ -128,7 +128,9 @@ public static class ThemeApplier
 		if (!Roles.TryGetValue(role, out var key)) return "#000000";
 		if (Application.Current?.Resources[key] is Color c)
 		{
-			return $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+			return c.A == 0xFF
+				? $"#{c.R:X2}{c.G:X2}{c.B:X2}"
+				: $"#{c.A:X2}{c.R:X2}{c.G:X2}{c.B:X2}";
 		}
 		return "#000000";
 	}

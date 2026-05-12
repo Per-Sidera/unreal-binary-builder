@@ -3,6 +3,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Threading;
+using HandyControl.Tools;
 using UnrealBinaryBuilder.Views;
 
 namespace UnrealBinaryBuilder;
@@ -23,6 +24,11 @@ public partial class App : Application
 		FrameworkElement.LanguageProperty.OverrideMetadata(
 			typeof(FrameworkElement),
 			new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(en.IetfLanguageTag)));
+
+		// HandyControl resolves its own string resources through ConfigHelper —
+		// pinning Thread culture isn't enough. Force HC's internal Lang to "en"
+		// so ColorPicker, MessageBox, etc. stop using the Chinese fallback.
+		ConfigHelper.Instance.SetLang("en");
 
 		DispatcherUnhandledException += OnDispatcherUnhandledException;
 	}

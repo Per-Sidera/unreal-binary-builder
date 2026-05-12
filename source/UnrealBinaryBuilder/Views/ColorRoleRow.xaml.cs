@@ -33,7 +33,9 @@ public partial class ColorRoleRow : UserControl
 	{
 		if (DataContext is ColorRoleViewModel role)
 		{
-			role.Hex = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+			role.Hex = color.A == 0xFF
+				? $"#{color.R:X2}{color.G:X2}{color.B:X2}"
+				: $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
 		}
 	}
 }

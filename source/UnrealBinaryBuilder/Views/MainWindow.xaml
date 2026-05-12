@@ -15,23 +15,29 @@
 			   WindowStartupLocation="CenterScreen"
 			   Closing="OnClosing">
 	<hc:GlowWindow.NonClientAreaContent>
-		<StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" Margin="8,0,8,0">
-			<Menu Background="Transparent" VerticalAlignment="Stretch">
-				<MenuItem Header="Preferences  ▾" Padding="12,4" VerticalAlignment="Stretch"
-						  ToolTip="Open the user settings file (notepad) or the Appearance editor.">
+		<DockPanel LastChildFill="False" VerticalAlignment="Stretch" Margin="4,0,8,0">
+			<Menu DockPanel.Dock="Left" Background="Transparent" VerticalAlignment="Stretch">
+				<MenuItem Header="Unreal Binary Builder  ▾"
+						  FontWeight="SemiBold" Padding="12,4"
+						  VerticalAlignment="Stretch"
+						  ToolTip="Open Settings, Appearance, Changelog, or About.">
 					<MenuItem Header="Settings"
 							  Command="{Binding OpenSettingsFileCommand}"
 							  ToolTip="Open the saved Settings.json file for hand-editing."/>
 					<MenuItem Header="Appearance…"
 							  Command="{Binding OpenAppearanceCommand}"
 							  ToolTip="Open the colour-palette editor (live preview, save/load, presets)."/>
+					<Separator/>
+					<MenuItem Header="Changelog"
+							  Command="{Binding OpenChangelogCommand}"
+							  ToolTip="Open the CHANGELOG. Falls back to the GitHub copy if no local file is shipped."/>
+					<MenuItem Header="About"
+							  Click="OnAboutClicked"/>
 				</MenuItem>
 			</Menu>
-			<Button Content="Changelog" Style="{StaticResource ButtonBaseStyle}" Command="{Binding OpenChangelogCommand}"
-					ToolTip="Open the CHANGELOG. Falls back to the GitHub copy if no local file is shipped."/>
-			<Button Content="About" Style="{StaticResource ButtonBaseStyle}" Click="OnAboutClicked"/>
-			<TextBlock Text="{Binding VersionLabel}" Margin="12,0,0,0" VerticalAlignment="Center" Opacity="0.6"/>
-		</StackPanel>
+			<TextBlock DockPanel.Dock="Right" Text="{Binding VersionLabel}"
+					   Margin="12,0,0,0" VerticalAlignment="Center" Opacity="0.6"/>
+		</DockPanel>
 	</hc:GlowWindow.NonClientAreaContent>
 
 	<DockPanel LastChildFill="True">
