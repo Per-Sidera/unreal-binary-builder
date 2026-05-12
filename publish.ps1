@@ -42,6 +42,20 @@ $projects = @(
     @{ Name = 'ubb';                 Path = (Join-Path $src 'UnrealBinaryBuilder.Cli/UnrealBinaryBuilder.Cli.csproj') }
 )
 
+# Version per commit: 4.<git rev-list --count HEAD>. Falls back to the
+# Directory.Build.props default (4.0.0) if git isn't available or the script
+# is run outside a repo.
+$buildVersion = $null
+try {
+    $count = (& git -C $root rev-list --count HEAD 2>$null)
+    if ($LASTEXITCODE -eq 0 -and $count) {
+        $buildVersion = "4.$($count.Trim())"
+        Write-Host "==> Publish version: $buildVersion" -ForegroundColor Cyan
+    }
+}
+catch { }
+$global:LASTEXITCODE = 0
+
 $staging = Join-Path $env:TEMP "ubb_publish_$([guid]::NewGuid().ToString('N'))"
 New-Item -ItemType Directory -Path $staging | Out-Null
 
@@ -49,15 +63,19 @@ try {
     foreach ($p in $projects) {
         Write-Host "==> Publishing $($p.Name)..." -ForegroundColor Cyan
         $stage = Join-Path $staging $p.Name
-        & dotnet publish $p.Path `
-            -c $Configuration `
-            -r $Runtime `
-            --self-contained true `
-            -p:PublishSingleFile=true `
-            -p:IncludeNativeLibrariesForSelfExtract=true `
-            -p:DebugType=None `
-            -p:DebugSymbols=false `
-            -o $stage
+        $publishArgs = @(
+            'publish', $p.Path,
+            '-c', $Configuration,
+            '-r', $Runtime,
+            '--self-contained', 'true',
+            '-p:PublishSingleFile=true',
+            '-p:IncludeNativeLibrariesForSelfExtract=true',
+            '-p:DebugType=None',
+            '-p:DebugSymbols=false',
+            '-o', $stage
+        )
+        if ($buildVersion) { $publishArgs += "-p:Version=$buildVersion" }
+        & dotnet @publishArgs
         if ($LASTEXITCODE -ne 0) {
             throw "dotnet publish failed for $($p.Name)"
         }

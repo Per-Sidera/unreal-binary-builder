@@ -7,7 +7,7 @@
 			   xmlns:vm="clr-namespace:UnrealBinaryBuilder.ViewModels"
 			   xmlns:views="clr-namespace:UnrealBinaryBuilder.Views"
 			   mc:Ignorable="d"
-			   Title="Unreal Binary Builder"
+			   Title=""
 			   Background="{DynamicResource RegionBrush}"
 			   ActiveGlowColor="{DynamicResource PrimaryColor}"
 			   InactiveGlowColor="{DynamicResource SecondaryBorderColor}"
