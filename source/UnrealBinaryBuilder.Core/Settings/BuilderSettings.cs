@@ -13,7 +13,10 @@ namespace UnrealBinaryBuilder.Core.Settings;
 public sealed class BuilderSettings
 {
 	// App
+	// Theme is the *preset name* shown in the Appearance tab dropdown.
+	// "Custom" means use the CustomThemeColors below instead of a built-in.
 	public string Theme { get; set; } = "Dark";
+	public Dictionary<string, string> CustomThemeColors { get; set; } = new();
 	public bool CheckForUpdatesAtStartup { get; set; } = true;
 	public bool ShowEngineBuildConfirmation { get; set; } = true;
 	public bool ShowDdcWarning { get; set; } = true;

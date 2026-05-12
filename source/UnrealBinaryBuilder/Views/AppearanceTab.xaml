@@ -1,0 +1,96 @@
+<UserControl x:Class="UnrealBinaryBuilder.Views.AppearanceTab"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:hc="https://handyorg.github.io/handycontrol"
+			 xmlns:vm="clr-namespace:UnrealBinaryBuilder.ViewModels"
+			 mc:Ignorable="d"
+			 d:DataContext="{d:DesignInstance Type=vm:AppearanceTabViewModel}"
+			 d:DesignWidth="900" d:DesignHeight="640">
+	<UserControl.Resources>
+		<Style x:Key="SectionHelp" TargetType="TextBlock">
+			<Setter Property="Opacity" Value="0.6"/>
+			<Setter Property="FontSize" Value="11"/>
+			<Setter Property="Margin" Value="0,0,0,10"/>
+			<Setter Property="TextWrapping" Value="Wrap"/>
+		</Style>
+	</UserControl.Resources>
+
+	<Grid Margin="16">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<!-- Top bar -->
+		<Border Grid.Row="0" Background="{DynamicResource RegionBrush}" CornerRadius="6"
+				Padding="14,10" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto"/>
+					<ColumnDefinition Width="240"/>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="Auto"/>
+					<ColumnDefinition Width="Auto"/>
+					<ColumnDefinition Width="Auto"/>
+				</Grid.ColumnDefinitions>
+				<TextBlock Grid.Column="0" Text="Theme:" VerticalAlignment="Center" Margin="0,0,12,0" FontWeight="SemiBold"/>
+				<ComboBox Grid.Column="1" ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset}"
+						  ToolTip="Pick a built-in palette. Editing any colour below moves to 'Custom' automatically."/>
+				<TextBlock Grid.Column="2"/>
+				<Button Grid.Column="3" Content="Reset" Command="{Binding ResetToPresetCommand}"
+						Padding="14,4" Margin="0,0,8,0"
+						ToolTip="Discard custom colours and reapply the last built-in preset."/>
+				<Button Grid.Column="4" Content="Load…" Command="{Binding LoadCustomPaletteCommand}"
+						Padding="14,4" Margin="0,0,8,0"
+						ToolTip="Load a palette from a .json file (overwrites current Custom colours)."/>
+				<Button Grid.Column="5" Content="Save…" Command="{Binding SaveCustomPaletteCommand}"
+						Padding="14,4"
+						ToolTip="Export the current palette to a .json file you can share or check in."/>
+			</Grid>
+		</Border>
+
+		<!-- Roles -->
+		<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+			<ItemsControl ItemsSource="{Binding Roles}">
+				<ItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<UniformGrid Columns="2"/>
+					</ItemsPanelTemplate>
+				</ItemsControl.ItemsPanel>
+				<ItemsControl.ItemTemplate>
+					<DataTemplate>
+						<Border Margin="0,0,8,8" Padding="12,8" CornerRadius="4"
+								Background="{DynamicResource RegionBrush}"
+								BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="36"/>
+									<ColumnDefinition Width="*"/>
+									<ColumnDefinition Width="120"/>
+								</Grid.ColumnDefinitions>
+								<!-- Swatch (live preview of current hex) -->
+								<Border Grid.Column="0" Width="28" Height="28" CornerRadius="3"
+										BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+										HorizontalAlignment="Left">
+									<Border.Background>
+										<SolidColorBrush Color="{Binding Hex, FallbackValue='#1B1C1F'}"/>
+									</Border.Background>
+								</Border>
+								<StackPanel Grid.Column="1" Margin="10,0,8,0" VerticalAlignment="Center">
+									<TextBlock Text="{Binding Label}" FontWeight="SemiBold"/>
+									<TextBlock Text="{Binding Group}" Opacity="0.55" FontSize="10"/>
+								</StackPanel>
+								<TextBox Grid.Column="2" Text="{Binding Hex, UpdateSourceTrigger=PropertyChanged}"
+										 hc:InfoElement.Placeholder="#RRGGBB"
+										 ToolTip="Edit the hex value directly. Must be in #RRGGBB form. UI updates live."
+										 VerticalAlignment="Center"/>
+							</Grid>
+						</Border>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+	</Grid>
+</UserControl>

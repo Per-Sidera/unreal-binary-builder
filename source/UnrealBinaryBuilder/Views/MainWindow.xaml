@@ -71,6 +71,9 @@
 			<hc:TabItem Header="Output">
 				<views:LogPanel DataContext="{Binding Log}"/>
 			</hc:TabItem>
+			<hc:TabItem Header="Appearance">
+				<views:AppearanceTab DataContext="{Binding Appearance}"/>
+			</hc:TabItem>
 		</hc:TabControl>
 	</DockPanel>
 </hc:GlowWindow>

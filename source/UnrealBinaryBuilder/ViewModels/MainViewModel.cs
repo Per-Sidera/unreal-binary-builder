@@ -10,6 +10,7 @@ using HandyControl.Controls;
 using UnrealBinaryBuilder.Core.Logging;
 using UnrealBinaryBuilder.Core.Settings;
 using UnrealBinaryBuilder.Helpers;
+using UnrealBinaryBuilder.Theming;
 using UnrealBinaryBuilderUpdater;
 
 namespace UnrealBinaryBuilder.ViewModels;
@@ -23,6 +24,7 @@ public sealed partial class MainViewModel : ObservableObject
 	public ZipProgressViewModel ZipProgress { get; } = new();
 	public EngineTabViewModel Engine { get; }
 	public PluginsTabViewModel Plugins { get; }
+	public AppearanceTabViewModel Appearance { get; }
 
 	[ObservableProperty] private string _versionLabel = $"v{AppInfo.Version}";
 	[ObservableProperty] private string _updateButtonContent = "Check for Updates";
@@ -38,8 +40,11 @@ public sealed partial class MainViewModel : ObservableObject
 	{
 		SettingsStore = new SettingsStore();
 		Settings = SettingsStore.Load();
+		ApplyThemeFromSettings();
+
 		Engine = new EngineTabViewModel(Settings, Log, Status, ZipProgress);
 		Plugins = new PluginsTabViewModel(Log, Status);
+		Appearance = new AppearanceTabViewModel(Settings, Log);
 
 		Log.Info($"Welcome to Unreal Binary Builder {AppInfo.Version}.");
 		if (Settings.CheckForUpdatesAtStartup)
@@ -167,6 +172,26 @@ public sealed partial class MainViewModel : ObservableObject
 					break;
 			}
 		});
+	}
+
+	private void ApplyThemeFromSettings()
+	{
+		string name = string.IsNullOrWhiteSpace(Settings.Theme) ? "Dark" : Settings.Theme;
+		ThemePalette? palette = ThemePalette.GetBuiltIn(name);
+
+		if (palette is null)
+		{
+			// "Custom" or an unknown preset name — start from Dark and apply
+			// the saved per-role overrides on top.
+			palette = (ThemePalette.GetBuiltIn("Dark") ?? ThemePalette.BuiltIn[0]).Clone();
+			palette.Name = "Custom";
+			foreach (var kv in Settings.CustomThemeColors)
+			{
+				palette.GetType().GetProperty(kv.Key)?.SetValue(palette, kv.Value);
+			}
+		}
+
+		ThemeApplier.Apply(palette);
 	}
 
 	public void SaveSettings()
