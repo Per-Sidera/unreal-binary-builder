@@ -51,7 +51,8 @@
 					<Run Text="{Binding Log.WarningCount, Mode=OneWay}" Foreground="Goldenrod"/>
 				</TextBlock>
 				<TextBlock Grid.Column="3" Text="{Binding Status.ElapsedDisplay}" Margin="16,0" HorizontalAlignment="Center" Opacity="0.7"/>
-				<Button Grid.Column="4" Content="{Binding UpdateButtonContent}" Command="{Binding CheckForUpdatesCommand}" Padding="12,2" FontSize="11" Margin="0,0,8,0"/>
+				<Button Grid.Column="4" Content="{Binding UpdateButtonContent}" Command="{Binding CheckForUpdatesCommand}" Padding="12,2" FontSize="11" Margin="0,0,8,0"
+						Visibility="{Binding IsUpdaterConfigured, Converter={StaticResource BoolToVisibility}}"/>
 				<Button Grid.Column="5" Content="Import Preset…" Command="{Binding ImportSettingsCommand}" Padding="12,2" FontSize="11" Margin="0,0,8,0"
 						ToolTip="Load a settings preset (.json) — overwrites all current options. See examples\ for ready-made presets and reference.settings.json for an annotated catalog of every field."/>
 				<Button Grid.Column="6" Content="Open Settings" Command="{Binding OpenSettingsFileCommand}" Padding="12,2" FontSize="11" Margin="0,0,8,0"/>

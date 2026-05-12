@@ -28,6 +28,10 @@ public sealed partial class MainViewModel : ObservableObject
 	[ObservableProperty] private string _updateButtonContent = "Check for Updates";
 	[ObservableProperty] private bool _updateAvailable;
 
+	// True when the updater has an appcast URL wired up. While false, the Check
+	// for Updates button stays hidden — there's nothing useful to do.
+	public bool IsUpdaterConfigured => UBBUpdater.IsConfigured;
+
 	private static UBBUpdater? _updater;
 
 	public MainViewModel()
@@ -129,11 +133,8 @@ public sealed partial class MainViewModel : ObservableObject
 
 	private Task CheckForUpdatesSilentlyAsync()
 	{
-		if (!UBBUpdater.IsConfigured)
-		{
-			Log.Debug("Update check skipped — no appcast URL configured.");
-			return Task.CompletedTask;
-		}
+		// Silent skip — no log noise — while no appcast is wired up.
+		if (!UBBUpdater.IsConfigured) return Task.CompletedTask;
 		try
 		{
 			_updater ??= new UBBUpdater();
