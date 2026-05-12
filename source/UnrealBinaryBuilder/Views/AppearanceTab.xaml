@@ -5,6 +5,7 @@
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:hc="https://handyorg.github.io/handycontrol"
 			 xmlns:vm="clr-namespace:UnrealBinaryBuilder.ViewModels"
+			 xmlns:views="clr-namespace:UnrealBinaryBuilder.Views"
 			 mc:Ignorable="d"
 			 d:DataContext="{d:DesignInstance Type=vm:AppearanceTabViewModel}"
 			 d:DesignWidth="900" d:DesignHeight="640">
@@ -61,33 +62,7 @@
 				</ItemsControl.ItemsPanel>
 				<ItemsControl.ItemTemplate>
 					<DataTemplate>
-						<Border Margin="0,0,8,8" Padding="12,8" CornerRadius="4"
-								Background="{DynamicResource RegionBrush}"
-								BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
-							<Grid>
-								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="36"/>
-									<ColumnDefinition Width="*"/>
-									<ColumnDefinition Width="120"/>
-								</Grid.ColumnDefinitions>
-								<!-- Swatch (live preview of current hex) -->
-								<Border Grid.Column="0" Width="28" Height="28" CornerRadius="3"
-										BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-										HorizontalAlignment="Left">
-									<Border.Background>
-										<SolidColorBrush Color="{Binding Hex, FallbackValue='#1B1C1F'}"/>
-									</Border.Background>
-								</Border>
-								<StackPanel Grid.Column="1" Margin="10,0,8,0" VerticalAlignment="Center">
-									<TextBlock Text="{Binding Label}" FontWeight="SemiBold"/>
-									<TextBlock Text="{Binding Group}" Opacity="0.55" FontSize="10"/>
-								</StackPanel>
-								<TextBox Grid.Column="2" Text="{Binding Hex, UpdateSourceTrigger=PropertyChanged}"
-										 hc:InfoElement.Placeholder="#RRGGBB"
-										 ToolTip="Edit the hex value directly. Must be in #RRGGBB form. UI updates live."
-										 VerticalAlignment="Center"/>
-							</Grid>
-						</Border>
+						<views:ColorRoleRow Margin="0,0,8,8"/>
 					</DataTemplate>
 				</ItemsControl.ItemTemplate>
 			</ItemsControl>

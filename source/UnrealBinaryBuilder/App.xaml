@@ -15,6 +15,7 @@
 			<conv:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
 			<conv:InverseBoolConverter x:Key="InverseBool"/>
 			<conv:NullToVisibilityConverter x:Key="NullToVisibility"/>
+			<conv:HexToBrushConverter x:Key="HexToBrush"/>
 
 			<!--
 			  Deep-grey palette overrides.

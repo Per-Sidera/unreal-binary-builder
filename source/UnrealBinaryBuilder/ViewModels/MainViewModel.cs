@@ -11,6 +11,7 @@ using UnrealBinaryBuilder.Core.Logging;
 using UnrealBinaryBuilder.Core.Settings;
 using UnrealBinaryBuilder.Helpers;
 using UnrealBinaryBuilder.Theming;
+using UnrealBinaryBuilder.Views;
 using UnrealBinaryBuilderUpdater;
 
 namespace UnrealBinaryBuilder.ViewModels;
@@ -117,12 +118,28 @@ public sealed partial class MainViewModel : ObservableObject
 	[RelayCommand]
 	private void OpenChangelog()
 	{
-		// Local CHANGELOG.md if it lives next to the exe; otherwise no-op.
+		// Local CHANGELOG.md if it lives next to the exe; otherwise open the
+		// hosted one on GitHub.
 		string local = Path.Combine(AppContext.BaseDirectory, "CHANGELOG.md");
 		if (File.Exists(local))
 		{
 			OpenUrl(local);
 		}
+		else
+		{
+			OpenUrl("https://github.com/Per-Sidera/unreal-binary-builder/blob/main/CHANGELOG.md");
+		}
+	}
+
+	[RelayCommand]
+	private void OpenAppearance()
+	{
+		var window = new AppearanceWindow
+		{
+			Owner = Application.Current?.MainWindow,
+			DataContext = Appearance,
+		};
+		window.Show();
 	}
 
 	private static void OpenUrl(string url)

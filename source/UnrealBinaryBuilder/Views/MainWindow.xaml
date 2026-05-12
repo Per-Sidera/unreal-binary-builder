@@ -16,8 +16,19 @@
 			   Closing="OnClosing">
 	<hc:GlowWindow.NonClientAreaContent>
 		<StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" Margin="8,0,8,0">
+			<Menu Background="Transparent" VerticalAlignment="Stretch">
+				<MenuItem Header="Preferences  ▾" Padding="12,4" VerticalAlignment="Stretch"
+						  ToolTip="Open the user settings file (notepad) or the Appearance editor.">
+					<MenuItem Header="Settings"
+							  Command="{Binding OpenSettingsFileCommand}"
+							  ToolTip="Open the saved Settings.json file for hand-editing."/>
+					<MenuItem Header="Appearance…"
+							  Command="{Binding OpenAppearanceCommand}"
+							  ToolTip="Open the colour-palette editor (live preview, save/load, presets)."/>
+				</MenuItem>
+			</Menu>
 			<Button Content="Changelog" Style="{StaticResource ButtonBaseStyle}" Command="{Binding OpenChangelogCommand}"
-					ToolTip="Opens the local CHANGELOG.md if one exists next to the executable."/>
+					ToolTip="Open the CHANGELOG. Falls back to the GitHub copy if no local file is shipped."/>
 			<Button Content="About" Style="{StaticResource ButtonBaseStyle}" Click="OnAboutClicked"/>
 			<TextBlock Text="{Binding VersionLabel}" Margin="12,0,0,0" VerticalAlignment="Center" Opacity="0.6"/>
 		</StackPanel>
@@ -33,7 +44,6 @@
 					<ColumnDefinition Width="Auto"/>
 					<ColumnDefinition Width="Auto"/>
 					<ColumnDefinition Width="*"/>
-					<ColumnDefinition Width="Auto"/>
 					<ColumnDefinition Width="Auto"/>
 					<ColumnDefinition Width="Auto"/>
 					<ColumnDefinition Width="Auto"/>
@@ -55,13 +65,15 @@
 						Visibility="{Binding IsUpdaterConfigured, Converter={StaticResource BoolToVisibility}}"/>
 				<Button Grid.Column="5" Content="Import Preset…" Command="{Binding ImportSettingsCommand}" Padding="12,2" FontSize="11" Margin="0,0,8,0"
 						ToolTip="Load a settings preset (.json) — overwrites all current options. See examples\ for ready-made presets and reference.settings.json for an annotated catalog of every field."/>
-				<Button Grid.Column="6" Content="Open Settings" Command="{Binding OpenSettingsFileCommand}" Padding="12,2" FontSize="11" Margin="0,0,8,0"/>
-				<Button Grid.Column="7" Content="Open Logs" Command="{Binding OpenLogFolderCommand}" Padding="12,2" FontSize="11"/>
+				<Button Grid.Column="6" Content="Open Logs" Command="{Binding OpenLogFolderCommand}" Padding="12,2" FontSize="11"/>
 			</Grid>
 		</Border>
 
 		<!-- Main tabs -->
-		<hc:TabControl Style="{StaticResource TabControlCapsuleSolid}" IsAnimationEnabled="True" ShowCloseButton="False">
+		<hc:TabControl IsAnimationEnabled="True" ShowCloseButton="False"
+					   Background="Transparent"
+					   BorderBrush="{DynamicResource BorderBrush}"
+					   BorderThickness="0,1,0,0">
 			<hc:TabItem Header="Engine" IsSelected="True">
 				<views:EngineTab DataContext="{Binding Engine}"/>
 			</hc:TabItem>
@@ -70,9 +82,6 @@
 			</hc:TabItem>
 			<hc:TabItem Header="Output">
 				<views:LogPanel DataContext="{Binding Log}"/>
-			</hc:TabItem>
-			<hc:TabItem Header="Appearance">
-				<views:AppearanceTab DataContext="{Binding Appearance}"/>
 			</hc:TabItem>
 		</hc:TabControl>
 	</DockPanel>

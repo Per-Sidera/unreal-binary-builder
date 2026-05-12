@@ -1,0 +1,59 @@
+<UserControl x:Class="UnrealBinaryBuilder.Views.ColorRoleRow"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:hc="https://handyorg.github.io/handycontrol"
+			 xmlns:vm="clr-namespace:UnrealBinaryBuilder.ViewModels"
+			 mc:Ignorable="d"
+			 d:DataContext="{d:DesignInstance Type=vm:ColorRoleViewModel}"
+			 d:DesignWidth="440" d:DesignHeight="48">
+	<Border Padding="12,8" CornerRadius="4"
+			Background="{DynamicResource RegionBrush}"
+			BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="36"/>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="120"/>
+			</Grid.ColumnDefinitions>
+
+			<!-- Swatch: click to open the picker popup -->
+			<ToggleButton x:Name="SwatchToggle" Grid.Column="0" Background="Transparent" BorderThickness="0"
+						  Width="28" Height="28" HorizontalAlignment="Left" Padding="0"
+						  ToolTip="Click to open the colour picker.">
+				<Border CornerRadius="3"
+						BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+						Background="{Binding Hex, Converter={StaticResource HexToBrush}, FallbackValue=Transparent}"/>
+			</ToggleButton>
+
+			<Popup IsOpen="{Binding IsChecked, ElementName=SwatchToggle}"
+				   PlacementTarget="{Binding ElementName=SwatchToggle}"
+				   Placement="Bottom" StaysOpen="False" AllowsTransparency="True"
+				   PopupAnimation="Fade">
+				<Border Background="{DynamicResource RegionBrush}"
+						BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+						CornerRadius="6" Padding="6"
+						Effect="{DynamicResource EffectShadow2}">
+					<hc:ColorPicker x:Name="Picker"
+									SelectedBrush="{Binding Hex, Converter={StaticResource HexToBrush}}"
+									SelectedColorChanged="OnPickerColorChanged"
+									Confirmed="OnPickerConfirmed"
+									Canceled="OnPickerCanceled"/>
+				</Border>
+			</Popup>
+
+			<!-- Label / group -->
+			<StackPanel Grid.Column="1" Margin="10,0,8,0" VerticalAlignment="Center">
+				<TextBlock Text="{Binding Label}" FontWeight="SemiBold"/>
+				<TextBlock Text="{Binding Group}" Opacity="0.55" FontSize="10"/>
+			</StackPanel>
+
+			<!-- Hex text input -->
+			<TextBox Grid.Column="2" Text="{Binding Hex, UpdateSourceTrigger=PropertyChanged}"
+					 hc:InfoElement.Placeholder="#RRGGBB"
+					 ToolTip="Type a hex value or use the swatch to pick one. UI updates live."
+					 VerticalAlignment="Center" FontFamily="Consolas"/>
+		</Grid>
+	</Border>
+</UserControl>

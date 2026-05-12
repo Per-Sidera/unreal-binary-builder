@@ -1,0 +1,13 @@
+<hc:GlowWindow x:Class="UnrealBinaryBuilder.Views.AppearanceWindow"
+			   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			   xmlns:hc="https://handyorg.github.io/handycontrol"
+			   xmlns:views="clr-namespace:UnrealBinaryBuilder.Views"
+			   Title="Appearance"
+			   Background="{DynamicResource RegionBrush}"
+			   ActiveGlowColor="{DynamicResource PrimaryColor}"
+			   InactiveGlowColor="{DynamicResource SecondaryBorderColor}"
+			   Width="1000" Height="720"
+			   WindowStartupLocation="CenterOwner">
+	<views:AppearanceTab/>
+</hc:GlowWindow>
