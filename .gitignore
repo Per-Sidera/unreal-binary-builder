@@ -440,3 +440,6 @@ source/UnrealBinaryBuilderUpdater/keys/**
 /UnrealBinaryBuilder.exe
 /ubb.exe
 /UnrealBinaryBuilder-source.zip
+
+## Claude Code per-project settings (user-local)
+.claude/
