@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text;
 using UnrealBinaryBuilder.Core.Engine;
 using UnrealBinaryBuilder.Core.Logging;
 
@@ -26,7 +27,10 @@ public static class EngineRegistrationScript
 
 		string resolvedName = ResolveName(buildName, buildDirectory);
 		string path = Path.Combine(buildDirectory, FileName);
-		File.WriteAllText(path, BuildScript(resolvedName));
+		// cmd.exe does not strip a UTF-8 BOM, so a BOM prepended to '@echo off'
+		// becomes garbage on the first line ('∩╗┐@echo' is not recognized...).
+		// Write ASCII-only (the script body is ASCII) via UTF-8-without-BOM.
+		File.WriteAllText(path, BuildScript(resolvedName), new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
 		logger.Info($"Wrote {FileName} (build name: {resolvedName}) to {path}");
 		return path;
 	}

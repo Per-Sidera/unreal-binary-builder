@@ -30,6 +30,8 @@ internal static class BuildCommand
 			new[] { "--engine-name", "-n" },
 			"Name used for the Register_Engine.bat script bundled with the build (HKCU\\Software\\Epic Games\\Unreal Engine\\Builds key). Defaults to UnrealEngine_<Major>_<Minor>_<Patch>.");
 		var noRegisterScript = new Option<bool>("--no-register-script", "Do not write Register_Engine.bat into the build output.");
+		var noVerify = new Option<bool>("--no-verify", "Skip the post-build install-output verifier. Don't use this for shipped builds — it exists for diagnosing the verifier itself or recovering from a known-partial run.");
+		var printBuildGraphArgs = new Option<bool>("--print-buildgraph-args", "Print the BuildGraph command line UBB would invoke for these settings (with the resolved engine version) and exit. Runs no build. Use this to bisect args against a stock minimal-args invocation when an install is undershipping.");
 
 		cmd.AddOption(settingsPath);
 		cmd.AddOption(skipSetup);
@@ -40,6 +42,8 @@ internal static class BuildCommand
 		cmd.AddOption(noZip);
 		cmd.AddOption(engineName);
 		cmd.AddOption(noRegisterScript);
+		cmd.AddOption(noVerify);
+		cmd.AddOption(printBuildGraphArgs);
 
 		cmd.SetHandler(async (ctx) =>
 		{
@@ -75,6 +79,19 @@ internal static class BuildCommand
 			if (ctx.ParseResult.GetValueForOption(noRegisterScript))
 			{
 				settings.WriteRegisterEngineScript = false;
+			}
+			if (ctx.ParseResult.GetValueForOption(noVerify))
+			{
+				settings.VerifyInstallOutput = false;
+			}
+
+			if (ctx.ParseResult.GetValueForOption(printBuildGraphArgs))
+			{
+				var version = UnrealBinaryBuilder.Core.Engine.EngineDetector.ReadEngineVersion(settings.EngineRootPath);
+				string args = UnrealBinaryBuilder.Core.Build.CommandLineBuilder.BuildBuildGraphArgs(settings, version);
+				Console.WriteLine(args);
+				ctx.ExitCode = 0;
+				return;
 			}
 
 			var logger = SharedOptions.Logger(verbose, quiet);

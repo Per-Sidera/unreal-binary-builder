@@ -110,34 +110,78 @@ public sealed class BuildPipeline
 		}
 
 		lastStep = BuildStep.BuildEngine;
+		string buildGraphArgs = CommandLineBuilder.BuildBuildGraphArgs(settings, version);
 		var engineResult = await runner.RunAsync(new ProcessOptions(
 			FileName: automationExe,
-			Arguments: CommandLineBuilder.BuildBuildGraphArgs(settings, version),
+			Arguments: buildGraphArgs,
 			WorkingDirectory: root), cancellationToken);
 		errors += engineResult.Errors; warnings += engineResult.Warnings;
 
 		bool engineSucceeded = engineResult.ExitCode == 0;
-		if (engineSucceeded && settings.WriteRegisterEngineScript)
+
+		if (engineSucceeded)
 		{
-			try
+			string? buildDir = ResolveBuildDir(root);
+			if (buildDir is null)
 			{
-				string? buildDir = ResolveBuildDir(root);
-				if (buildDir is not null)
+				_logger.Error("BuildGraph exited 0 but no LocalBuilds/Engine/Windows output directory exists — install did not produce anything.");
+				return Done(lastStep, false, errors + 1, warnings, totalSw);
+			}
+
+			// Forensic dump: record the exact RunUAT line UBB constructed,
+			// alongside the install. Lets a later operator (or another
+			// agent) bisect args against a stock minimal-args invocation
+			// without re-running UBB.
+			TryWriteBuildGraphCommandLog(buildDir, automationExe, buildGraphArgs);
+
+			if (settings.WriteRegisterEngineScript)
+			{
+				try
 				{
 					EngineRegistrationScript.Write(buildDir, settings.RegisterEngineName, _logger);
 				}
-				else
+				catch (Exception ex)
 				{
-					_logger.Warn($"Skipped writing {EngineRegistrationScript.FileName}: installed engine output directory not found.");
+					_logger.Warn($"Failed to write {EngineRegistrationScript.FileName}: {ex.Message}");
 				}
 			}
-			catch (Exception ex)
+
+			// Verifier runs LAST so Register_Engine.bat presence is part of the
+			// check. Failing here turns silent partial installs into explicit
+			// pipeline failures — see InstallOutputVerifier for the file list
+			// and rationale.
+			if (settings.VerifyInstallOutput)
 			{
-				_logger.Warn($"Failed to write {EngineRegistrationScript.FileName}: {ex.Message}");
+				var verification = InstallOutputVerifier.Verify(buildDir, settings, _logger);
+				if (!verification.Passed)
+				{
+					return Done(lastStep, false, errors + verification.Missing.Count, warnings, totalSw);
+				}
+			}
+			else
+			{
+				_logger.Warn("Install verification skipped (VerifyInstallOutput=false). Output completeness is not guaranteed.");
 			}
 		}
 
 		return Done(lastStep, engineSucceeded, errors, warnings, totalSw);
+	}
+
+	private void TryWriteBuildGraphCommandLog(string buildDir, string automationExe, string args)
+	{
+		try
+		{
+			string path = Path.Combine(buildDir, "_buildgraph-command.txt");
+			string body = $"# Exact RunUAT invocation that produced this install.{Environment.NewLine}" +
+						  $"# Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}{Environment.NewLine}" +
+						  $"# Use this to bisect args against a stock minimal-args run if the install is missing files.{Environment.NewLine}{Environment.NewLine}" +
+						  $"\"{automationExe}\" {args}{Environment.NewLine}";
+			File.WriteAllText(path, body);
+		}
+		catch (Exception ex)
+		{
+			_logger.Debug($"Could not write _buildgraph-command.txt: {ex.Message}");
+		}
 	}
 
 	/// <summary>Locates the installed engine output directory (where InstalledEngineBuild.xml drops files).</summary>

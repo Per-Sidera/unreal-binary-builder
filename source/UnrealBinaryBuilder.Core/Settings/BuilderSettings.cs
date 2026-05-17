@@ -92,6 +92,14 @@ public sealed class BuilderSettings
 	public bool WriteRegisterEngineScript { get; set; } = true;
 	public string RegisterEngineName { get; set; } = string.Empty;
 
+	// Post-build sanity check. When true, the pipeline verifies the install
+	// contains the files an artist workstation actually needs (editor,
+	// UnrealVersionSelector, precompiled UBT rules assemblies, total size
+	// sanity) and fails the build if any are missing. Default ON — there is
+	// no good reason to ship a partial install. Flip to false only if you
+	// genuinely want UBB to ignore truncated BuildGraph copy phases.
+	public bool VerifyInstallOutput { get; set; } = true;
+
 	// Zip
 	public bool ZipEngineBuild { get; set; }
 	public bool ZipIncludePdb { get; set; } = true;
