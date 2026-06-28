@@ -199,10 +199,36 @@ public sealed class BuildPipeline
 	private async Task<ProcessResult?> BuildAutomationToolStage(
 		ProcessRunner runner, string root, EngineVersion? version, CancellationToken cancellationToken)
 	{
-		// On UE5, AutomationTool builds via dotnet on the .csproj.
-		// On UE4, we just run RunUAT.bat -compileonly which compiles AutomationToolLauncher.
+		// On UE5, the canonical "build AutomationTool" entry point is Epic's own
+		// BuildUAT.bat (Windows) / BuildUAT.sh (Linux/Mac). It chains
+		// GetDotnetPath -> BuildUBT -> DotnetDepends to compile the whole
+		// AutomationTool.sln (UBT + shared EpicGames libs + AutomationTool) using
+		// the engine-bundled MSBuild rather than whatever SDK Visual Studio
+		// happened to ship with. Bypassing this and calling MSBuild/dotnet on
+		// AutomationTool.csproj directly fails on UE 5.8 because VS 2022's
+		// bundled MSBuild (.NET Framework 17.x) doesn't understand .NET 10
+		// targets and errors out with NETSDK1045.
+		//
+		// On UE4 we fall back to RunUAT.bat -compileonly, which builds
+		// AutomationToolLauncher the old way.
 		if (version?.IsUnreal5 == true)
 		{
+			string buildUat = OperatingSystem.IsWindows()
+				? Path.Combine(root, "Engine", "Build", "BatchFiles", "BuildUAT.bat")
+				: Path.Combine(root, "Engine", "Build", "BatchFiles", "BuildUAT.sh");
+
+			if (File.Exists(buildUat))
+			{
+				return await runner.RunAsync(new ProcessOptions(
+					FileName: buildUat,
+					Arguments: "minimal",
+					WorkingDirectory: root), cancellationToken);
+			}
+
+			// Older 5.x trees that pre-date BuildUAT.bat — fall back to
+			// dotnet on AutomationTool.csproj directly.
+			_logger.Warn($"BuildUAT script not found at {buildUat}; falling back to dotnet on AutomationTool.csproj.");
+
 			string projectFile = EngineDetector.AutomationToolProjectFile(root);
 			if (!File.Exists(projectFile))
 			{
@@ -210,11 +236,6 @@ public sealed class BuildPipeline
 				return null;
 			}
 
-			// Prefer the dotnet CLI: UE 5.8 targets .NET 10, which VS 2022's bundled
-			// MSBuild (17.x for .NET Framework) does not understand, so calling
-			// MSBuild directly on a UE 5.8 source tree errors out with NETSDK1045.
-			// The dotnet CLI uses the host machine's .NET SDK installation, which
-			// covers every UE5 version that ships.
 			if (IsDotnetOnPath())
 			{
 				return await runner.RunAsync(new ProcessOptions(
@@ -223,20 +244,7 @@ public sealed class BuildPipeline
 					WorkingDirectory: root), cancellationToken);
 			}
 
-			// Last-resort fallback to MSBuild from Visual Studio — only used if the
-			// dotnet CLI isn't on PATH. Will fail on UE 5.8+ source trees if VS
-			// hasn't been updated to a version that supports .NET 10 projects.
-			string? msbuild = VsWhere.FindMsBuildExe();
-			if (msbuild != null)
-			{
-				_logger.Warn("dotnet CLI not found on PATH; falling back to MSBuild from Visual Studio. This will fail for UE 5.8+ until VS supports .NET 10 projects.");
-				return await runner.RunAsync(new ProcessOptions(
-					FileName: msbuild,
-					Arguments: $"/restore /verbosity:minimal \"{projectFile}\"",
-					WorkingDirectory: root), cancellationToken);
-			}
-
-			_logger.Error("Neither dotnet CLI nor MSBuild was found. Install the .NET 10 SDK (or whichever SDK the engine targets).");
+			_logger.Error("Neither BuildUAT script nor dotnet CLI was found. Install the .NET SDK matching the engine target.");
 			return null;
 		}
 
