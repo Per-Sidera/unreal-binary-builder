@@ -199,7 +199,7 @@ public sealed class BuildPipeline
 	private async Task<ProcessResult?> BuildAutomationToolStage(
 		ProcessRunner runner, string root, EngineVersion? version, CancellationToken cancellationToken)
 	{
-		// On UE5, AutomationTool builds via dotnet/MSBuild on the .csproj.
+		// On UE5, AutomationTool builds via dotnet on the .csproj.
 		// On UE4, we just run RunUAT.bat -compileonly which compiles AutomationToolLauncher.
 		if (version?.IsUnreal5 == true)
 		{
@@ -210,20 +210,34 @@ public sealed class BuildPipeline
 				return null;
 			}
 
+			// Prefer the dotnet CLI: UE 5.8 targets .NET 10, which VS 2022's bundled
+			// MSBuild (17.x for .NET Framework) does not understand, so calling
+			// MSBuild directly on a UE 5.8 source tree errors out with NETSDK1045.
+			// The dotnet CLI uses the host machine's .NET SDK installation, which
+			// covers every UE5 version that ships.
+			if (IsDotnetOnPath())
+			{
+				return await runner.RunAsync(new ProcessOptions(
+					FileName: "dotnet",
+					Arguments: $"build -c Development \"{projectFile}\"",
+					WorkingDirectory: root), cancellationToken);
+			}
+
+			// Last-resort fallback to MSBuild from Visual Studio — only used if the
+			// dotnet CLI isn't on PATH. Will fail on UE 5.8+ source trees if VS
+			// hasn't been updated to a version that supports .NET 10 projects.
 			string? msbuild = VsWhere.FindMsBuildExe();
 			if (msbuild != null)
 			{
+				_logger.Warn("dotnet CLI not found on PATH; falling back to MSBuild from Visual Studio. This will fail for UE 5.8+ until VS supports .NET 10 projects.");
 				return await runner.RunAsync(new ProcessOptions(
 					FileName: msbuild,
 					Arguments: $"/restore /verbosity:minimal \"{projectFile}\"",
 					WorkingDirectory: root), cancellationToken);
 			}
 
-			// Fallback to dotnet build (UE5 AutomationTool now targets .NET — works in newer engines).
-			return await runner.RunAsync(new ProcessOptions(
-				FileName: "dotnet",
-				Arguments: $"build -c Development \"{projectFile}\"",
-				WorkingDirectory: root), cancellationToken);
+			_logger.Error("Neither dotnet CLI nor MSBuild was found. Install the .NET 10 SDK (or whichever SDK the engine targets).");
+			return null;
 		}
 
 		// UE4 path
@@ -244,5 +258,22 @@ public sealed class BuildPipeline
 	{
 		sw.Stop();
 		return new BuildOutcome(step, ok, errors, warnings, sw.Elapsed);
+	}
+
+	private static bool IsDotnetOnPath()
+	{
+		string? path = Environment.GetEnvironmentVariable("PATH");
+		if (string.IsNullOrEmpty(path)) return false;
+		string exeName = OperatingSystem.IsWindows() ? "dotnet.exe" : "dotnet";
+		foreach (string dir in path.Split(Path.PathSeparator))
+		{
+			if (string.IsNullOrWhiteSpace(dir)) continue;
+			try
+			{
+				if (File.Exists(Path.Combine(dir, exeName))) return true;
+			}
+			catch { /* malformed PATH entry, skip */ }
+		}
+		return false;
 	}
 }
